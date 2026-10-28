@@ -20,9 +20,9 @@ static bool device_ready = false;
 
 static char password[32];
 
-void pucaos_setup(void)
+void main_setup(void)
 {
-  if (!pucaos_platform_init())
+  if (!platform_init())
   {
     return;
   }
@@ -67,7 +67,7 @@ void pucaos_setup(void)
   return;
 }
 
-void pucaos_loop(void)
+void main_loop(void)
 {
   if (device_ready)
   {

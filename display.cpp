@@ -14,23 +14,27 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void displayInit()
 {
+  // Assigning Arduino data pins and clock speed.
   Wire.begin(A4, A5);
   Wire.setClock(100000);
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  if (Serial) // To prevent memory leaks, we only print to the serial (USB) output if it is connected
   {
-    if (Serial)
+    Serial.println("Beginning Display...");
+
+    // Try beginning display at various addresses and log accordingly
+    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
     {
       Serial.println(F("Screen not seen at 0x3C, trying 0x3D..."));
-    }
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
-    {
-      if (Serial)
+
+      if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
       {
-        Serial.println(F("OLED hardware communication failed. Check SDA/SCL joints."));
+        if (Serial)
+        {
+          Serial.println(F("OLED hardware communication failed. Check SDA/SCL joints."));
+        }
+        for (;;) //
       }
-      for (;;)
-        ;
     }
   }
 
@@ -39,6 +43,7 @@ void displayInit()
   display.setTextSize(1);
 }
 
+// We store the char arrays for reuse each frame
 char headerText[] = "Temperature";
 char errorLine1[] = "Sensor";
 char errorLine2[] = "Error";
@@ -52,6 +57,8 @@ void updateDisplay(float temp)
   int16_t hx, hy;
   uint16_t hw, hh;
 
+  // To centre the text, we get the width of the text, take it away from
+  // the screen width and halve it to get the start point of the centred text.
   display.getTextBounds(headerText, 0, 0, &hx, &hy, &hw, &hh);
   int headerX = (SCREEN_WIDTH - hw) / 2;
 
@@ -59,7 +66,7 @@ void updateDisplay(float temp)
 
   display.println(headerText);
 
-  if (temp != -127.00)
+  if (temp != -127.00) // An erroneous reading will read -127 degrees
   {
     display.setTextSize(4);
 
@@ -74,6 +81,7 @@ void updateDisplay(float temp)
     int16_t tx, ty;
     uint16_t tw, th;
 
+    // Again, we centre the text using the same method
     display.getTextBounds(tempText, 0, 0, &tx, &ty, &tw, &th);
 
     int tempX = (SCREEN_WIDTH - tw) / 2;
@@ -95,6 +103,8 @@ void updateDisplay(float temp)
     int16_t x1, y1, x2, y2;
     uint16_t w1, h1, w2, h2;
 
+    // If the temperature reading is erroneous, we display "Sensor Error" instead.
+    // As this takes up two lines we have to centre both lines seperately.
     display.getTextBounds(errorLine1, 0, 0, &x1, &y1, &w1, &h1);
     display.getTextBounds(errorLine2, 0, 0, &x2, &y2, &w2, &h2);
 
@@ -107,7 +117,7 @@ void updateDisplay(float temp)
     display.setCursor(line1X, startY);
     display.print(errorLine1);
 
-    display.setCursor(line2X, startY + h1 + 6);
+    display.setCursor(line2X, startY + h1 + 6); // Y is set to the beginning plus the height of the above text plus a padding of 6px
     display.print(errorLine2);
 
     if (Serial)

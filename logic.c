@@ -34,11 +34,12 @@ void update_logic_mode(ControlMode mode)
   }
 
   control_mode = mode;
-  update_settings_mode(mode);
+  update_settings_mode(mode); // Updates the control mode in the settings module as well
 }
 
 void plug_state_received(struct mg_http_message event_data)
 {
+  // Isolates the power attribute in the return call from the plug
   char *output = mg_json_get_str(event_data.body, "$.POWER");
 
   if (output == NULL)
@@ -63,7 +64,7 @@ void plug_state_received(struct mg_http_message event_data)
   }
 
   mg_free(output);
-  apply_logic();
+  apply_logic(); // Only after the plug state is received we apply the logic
 }
 
 void logic_init(Schedule *schedule, struct mg_mgr *manager)
@@ -105,7 +106,7 @@ void update_logic_temp()
       return;
     }
 
-    mqtt_publish("/mc/temperature", temp_msg, false);
+    mqtt_publish("/mc/temperature", temp_msg, false); // We publish the temperature to MQTT for the android app to read
   }
 }
 
@@ -116,25 +117,26 @@ void logic_update()
 
 static void apply_logic()
 {
-  updateDisplay((float)(current_temp / 100.0f));
+  updateDisplay((float)(current_temp / 100.0f)); // Temp is stored times 100 (30 = 3000) so it is divided by 100 when needs displaying
 
-  if (control_mode != CONTROL_MODE_AUTO || isError)
+  if (control_mode != CONTROL_MODE_AUTO || isError) // When there is an error or the Arduino is in manual mode, we skip applying logic
   {
     return;
   }
 
-  uint16_t tf_index = get_current_timeframe_index(*current_schedule, current_time);
+  uint16_t tf_index = get_current_timeframe_index(*current_schedule, current_time); // Check which timeframe applies to right now
   Timeframe current_t = current_schedule->timeframes[tf_index];
 
-  // if we're well above temp or schedule says turn off, and the lamp is already on
+  // If we're well above temp or schedule says turn off, and the lamp is already on
   if ((current_t.temperature + 200 < current_temp || !current_t.lamp_state) && lamp_state) // 2 degree range
   {
-    set_plug(mgr, PLUG_IP, false); // turn off
+    set_plug(mgr, PLUG_IP, false); // Turn off
     printSerial("Turning off lamp.");
-  } // if the lamps off, temps below target, and lamp should be on
-  else if (!lamp_state && current_t.temperature - 300 > current_temp && current_t.lamp_state) // 3 degree under range
+  }
+  // If the lamp's off, temps below target, and lamp should be on
+  else if (!lamp_state && current_t.temperature - 300 > current_temp && current_t.lamp_state) // 3 degree range
   {
-    set_plug(mgr, PLUG_IP, true);
+    set_plug(mgr, PLUG_IP, true); // Turn on
     printSerial("Turning on lamp.");
   }
 

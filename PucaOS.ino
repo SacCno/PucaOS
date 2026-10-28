@@ -1,7 +1,7 @@
 #include "mongoose.h"
 
-extern "C" void pucaos_setup(void);
-extern "C" void pucaos_loop(void);
+extern "C" void main_setup(void);
+extern "C" void main_loop(void);
 
 void setup()
 {
@@ -17,10 +17,10 @@ void setup()
         Serial.println("Setup start.");
     }
 
-    pucaos_setup();
+    main_setup();
 }
 
 void loop()
 {
-    pucaos_loop();
+    main_loop();
 }

@@ -7,10 +7,76 @@
 
 #include "config.h"
 
-extern "C" void printSerial(const char *fmt, ...);
-static bool provisional_mqtt_password();
+extern "C" void printSerial(const char *fmt, ...)
+{
+    if (fmt == NULL)
+    {
+        return;
+    }
+    if (!Serial)
+    {
+        return;
+    }
 
-extern "C" bool pucaos_platform_init(void)
+    char buffer[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+
+    Serial.println(buffer);
+}
+
+static bool provisional_mqtt_password()
+{
+    if (LittleFS.exists("/mqttpassword.txt"))
+    {
+        printSerial("MQTT password file found");
+        return true;
+    }
+
+    printSerial("Enter MQTT password, then press enter...");
+
+    unsigned long last_prompt = millis();
+    while (!Serial.available())
+    {
+        if (Serial && millis() - last_prompt >= 5000UL)
+        {
+            printSerial("Waiting for MQTT password; send it with a newline.");
+            last_prompt = millis();
+        }
+        delay(50);
+    }
+
+    String password = Serial.readStringUntil('\n');
+
+    if (password.endsWith("\r"))
+    {
+        password.remove(password.length() - 1);
+    }
+
+    if (password.length() == 0 || password.length() >= 32)
+    {
+        printSerial("Invalid password length; must be 1-31 characters");
+        return false;
+    }
+
+    File file = LittleFS.open("/mqttpassword.txt", "w");
+
+    if (!file)
+    {
+        printSerial("Could not create password file");
+        return false;
+    }
+
+    file.print(password);
+    file.close();
+
+    printSerial("MQTT password saved");
+    return true;
+}
+
+extern "C" bool platform_init(void)
 {
     printSerial("Entered platform init");
 
@@ -97,75 +163,6 @@ extern "C" bool pucaos_platform_init(void)
 
     printSerial("Setup Complete");
 
-    return true;
-}
-
-extern "C" void printSerial(const char *fmt, ...)
-{
-    if (fmt == NULL)
-    {
-        return;
-    }
-    if (!Serial)
-    {
-        return;
-    }
-
-    char buffer[256];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
-    va_end(args);
-
-    Serial.println(buffer);
-}
-
-static bool provisional_mqtt_password()
-{
-    if (LittleFS.exists("/mqttpassword.txt"))
-    {
-        printSerial("MQTT password file found");
-        return true;
-    }
-
-    printSerial("Enter MQTT password, then press enter...");
-
-    unsigned long last_prompt = millis();
-    while (!Serial.available())
-    {
-        if (Serial && millis() - last_prompt >= 5000UL)
-        {
-            printSerial("Waiting for MQTT password; send it with a newline.");
-            last_prompt = millis();
-        }
-        delay(50);
-    }
-
-    String password = Serial.readStringUntil('\n');
-
-    if (password.endsWith("\r"))
-    {
-        password.remove(password.length() - 1);
-    }
-
-    if (password.length() == 0 || password.length() >= 32)
-    {
-        printSerial("Invalid password length; must be 1-31 characters");
-        return false;
-    }
-
-    File file = LittleFS.open("/mqttpassword.txt", "w");
-
-    if (!file)
-    {
-        printSerial("Could not create password file");
-        return false;
-    }
-
-    file.print(password);
-    file.close();
-
-    printSerial("MQTT password saved");
     return true;
 }
 
