@@ -1,10 +1,38 @@
 # PucaOS
 
-PucaOS is an embedded system written for the Arduino Nano ESP32. It includes an accompanying Android app, which allows for remote interfacing with the Arduino.
-The Ardduino takes in measurements from DS18B20 temperature probes and compares them against a saved schedule. It uses that information to control a Tasmota smart plug
-through LAN HTTP commands, to temperature control a terrarium.
+### **This project is in development. There are safeguards and failsafes that are yet to be implemented! It should not be used to manage a terrarium in its current state!**
 
-**This project is in development. There are safeguards and failsafes that are yet to be implemented**
+PucaOS is an embedded system written for the Arduino Nano ESP32. It includes an accompanying Android app, which allows for remote interfacing with the Arduino.
+The Arduino takes in measurements from DS18B20 temperature probes and compares them against a saved schedule. It uses that information to control a Tasmota smart plug
+through LAN HTTP commands, to regulate a terrarium's temperature.
+
+## Images
+
+<table align="center">
+  <tr>
+    <td>
+      <img src="images/Hardware-Closed.jpg" width="310">
+      <br><br>
+      <img src="images/Hardware-Open.jpg" width="310">
+    </td>
+    <td>
+      <img src="images/App-MainPage.png" width="250">
+    </td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td>
+      <img src="images/App-SchedulePage.png" width="320">
+    </td>
+    <td>
+      <img src="images/PCB.png" width="230">
+      <br><br>
+      <img src="images/PCB-Render.png" width="230">
+    </td>
+  </tr>
+</table>
 
 ## Features
 
@@ -20,7 +48,8 @@ through LAN HTTP commands, to temperature control a terrarium.
 * DallasTemperature
 * OneWire
 * Wire
-* Adafruit
+* Adafruit_SSD1306
+* Adafruit_GFX
 
 ## Technologies
 * WiFi
@@ -67,6 +96,5 @@ In Android Studio, open the *PucaOS-Android* folder as a project, and let the gr
 
 
 ## Licence
-MIT Licence
 
-See LICENCE.md
+MIT Licence - See LICENCE.md
