@@ -97,4 +97,4 @@ In Android Studio, open the *PucaOS-Android* folder as a project, and let the gr
 
 ## Licence
 
-MIT Licence - See LICENCE.md
+MIT Licence - See [LICENSE](LICENSE).
