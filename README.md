@@ -51,6 +51,8 @@ The Arduino takes in measurements from DS18B20 temperature probes and compares t
 * Adafruit_GFX
 
 ## Technologies
+* Arduino
+* DS18B20
 * WiFi
 * MQTT
 * HTTP
@@ -66,19 +68,22 @@ The Arduino takes in measurements from DS18B20 temperature probes and compares t
 
 ## Implementation
 
-Clone the repository
+Clone the repository and setup *'config.h'*
 
 ```bash
-git clone https://github.com/SacCno/PucaOS
+git clone https://github.com/SacCno/PucaOS && cd PucaOS/PucaOS-Arduino && cp config.example.h config.h
+```
+
+On Powershell you may have to use this command instead.
+
+```bash
+git clone https://github.com/SacCno/PucaOS; if ($LASTEXITCODE -eq 0) { Copy-Item PucaOS/PucaOS-Arduino/config.example.h PucaOS/PucaOS-Arduino/config.h }
 ```
 
 ### Arduino
 
 Before beginning the steps below, first make sure to copy 'config.example.h' as 'config.h' and fill in the values with your own.
 
-```bash
-cp config.example.h config.h
-```
 
 1. Ensure all files are in the same directory as *'PucaOSArduino.ino'*
 2. Open Arduino IDE
