@@ -95,6 +95,6 @@ cp config.example.h config.h
 In Android Studio, open the *PucaOS-Android* folder as a project, and let the gradle build.
 
 
-## Licence
+## License
 
-MIT Licence - See [LICENSE](LICENSE).
+MIT License - See [LICENSE](LICENSE).
