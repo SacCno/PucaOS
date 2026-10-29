@@ -3,8 +3,7 @@
 ### **This project is in development. There are safeguards and failsafes that are yet to be implemented! It should not be used to manage a terrarium in its current state!**
 
 PucaOS is an embedded system written for the Arduino Nano ESP32. It includes an accompanying Android app, which allows for remote interfacing with the Arduino.
-The Arduino takes in measurements from DS18B20 temperature probes and compares them against a saved schedule. It uses that information to control a Tasmota smart plug
-through LAN HTTP commands, to regulate a terrarium's temperature.
+The Arduino takes in measurements from DS18B20 temperature probes and compares them against a saved schedule. Based on these measurements and the configured schedule, the Arduino controls a Tasmota smart plug over the local network using HTTP commands to regulate the terrarium's temperature.
 
 ## Images
 
