@@ -1,2 +1,11 @@
-codebase.zip
 config.h
+PucaOS-Android/.idea/workspace.xml
+PucaOS-Android/.gradle/
+PucaOS-Android/build/
+PucaOS-Android/local.properties
+PucaOS-Android/.externalNativeBuild/
+PucaOS-Android/.cxx/
+PucaOS-Android/.kotlin/
+PucaOS-Android/.idea/caches/
+PucaOS-Android/.idea/deploymentTargetSelector.xml
+PucaOS-Android/.idea/*.iml
