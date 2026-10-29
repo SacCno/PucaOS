@@ -82,13 +82,15 @@ git clone https://github.com/SacCno/PucaOS; if ($LASTEXITCODE -eq 0) { Copy-Item
 
 ### Arduino
 
-Before beginning the steps below, first make sure to copy 'config.example.h' as 'config.h' and fill in the values with your own.
+The above command will have copied *'config.example.h'* into *'PucaOS-Arduino/'* as *'config.h'*.
+This file will be ignored by git so you can safely fill in your details and push commits without sharing your WiFi password! **The program will not run if the values in the new *'config.h'* are not filled in accurately.**
 
+To compile and upload the program onto your Arduino Nano ESP32:
 
-1. Ensure all files are in the same directory as *'PucaOSArduino.ino'*
+1. Ensure all files are in the same directory as *'PucaOS-Arduino.ino'*
 2. Open Arduino IDE
-3. Click 'file -> open...'
-4. Select *'PucaOSArduino.ino'*
+3. Click 'File -> Open...'
+4. Select *'Puca-OSArduino.ino'*
 5. Ensure Arduino Nano ESP32 is connected to the computer and that the appropriate board and port are selected in 'tools'
 6. Click 'Upload Sketch'
 7. On first start-up, open serial monitor in Arduino IDE where you will be prompted to enter your MQTT password.
@@ -96,7 +98,7 @@ Before beginning the steps below, first make sure to copy 'config.example.h' as 
 
 ### Android
 
-In Android Studio, open the *PucaOS-Android* folder as a project, and let the gradle build.
+In Android Studio, open the *PucaOS-Android/* folder as a project, and let the gradle build.
 
 
 ## License
