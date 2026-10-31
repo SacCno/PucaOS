@@ -33,7 +33,7 @@ void displayInit()
         {
           Serial.println(F("OLED hardware communication failed. Check SDA/SCL joints."));
         }
-        for (;;) //
+        for (;;); //
       }
     }
   }

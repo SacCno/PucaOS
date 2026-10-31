@@ -159,7 +159,15 @@ extern "C" bool platform_init(void)
 
     configTzTime("GMT0IST,M3.5.0/1,M10.5.0/2", "pool.ntp.org", "time.nist.gov");
 
-    delay(500);
+    struct tm timeinfo = {};
+    if(!getLocalTime(&timeinfo, 15000)) {
+        printSerial("Time sync failed");
+        return false;
+    }
+
+    char timeText[32];
+    strftime(timeText, sizeof(timeText), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    printSerial("Time synchronised: %s", timeText);
 
     printSerial("Setup Complete");
 

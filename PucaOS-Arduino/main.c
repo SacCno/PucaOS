@@ -18,18 +18,10 @@ static void logic_timer_callback(void *arg);
 
 static bool device_ready = false;
 
-static char password[32];
-
 void main_setup(void)
 {
   if (!platform_init())
   {
-    return;
-  }
-
-  if (!password_reader("/mqttpassword.txt", password, sizeof(password)))
-  {
-    printSerial("Password not found");
     return;
   }
 
@@ -43,7 +35,7 @@ void main_setup(void)
 
   mqtt_options.client_id = mg_str("ArduinoNanoESP32");
   mqtt_options.user = mg_str(MQTT_USERNAME);
-  mqtt_options.pass = mg_str(password);
+  mqtt_options.pass = mg_str(MQTT_PASS);
   mqtt_options.clean = false;
   mqtt_options.keepalive = 60;
 
