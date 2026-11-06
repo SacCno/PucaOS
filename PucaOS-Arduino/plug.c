@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "mongoose.h"
 #include "plug.h"
-#include "config.h"
-#include "logic.h"
-#include "platform.h"
-
-struct plug_request
-{
-  char host[64];
-  char path[128];
-  bool query_state;
-};
 
 static void plug_http_handler(struct mg_connection *connection, int event, void *event_data);
 

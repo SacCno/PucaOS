@@ -6,9 +6,9 @@
 
 #include "display.h"
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET 4
+#define SCREEN_WIDTH 128 //px
+#define SCREEN_HEIGHT 64 //px
+#define OLED_RESET 4 // reset pin on arduino GPIO
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -21,29 +21,33 @@ void displayInit()
   if (Serial) // To prevent memory leaks, we only print to the serial (USB) output if it is connected
   {
     Serial.println("Beginning Display...");
+  }
 
-    // Try beginning display at various addresses and log accordingly
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  // Try beginning display at various addresses and log accordingly
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  {
+    if (Serial)
     {
       Serial.println(F("Screen not seen at 0x3C, trying 0x3D..."));
+    }
 
-      if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
+    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D))
+    {
+      if (Serial)
       {
-        if (Serial)
-        {
-          Serial.println(F("OLED hardware communication failed. Check SDA/SCL joints."));
-        }
-        for (;;); //
+        Serial.println(F("OLED hardware communication failed. Check SDA/SCL joints."));
       }
+      for (;;); //
     }
   }
+
 
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
 }
 
-// We store the char arrays for reuse each frame
+// We declare the char arrays for reuse each frame
 char headerText[] = "Temperature";
 char errorLine1[] = "Sensor";
 char errorLine2[] = "Error";
