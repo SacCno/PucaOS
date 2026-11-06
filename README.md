@@ -85,15 +85,17 @@ git clone https://github.com/SacCno/PucaOS; if ($LASTEXITCODE -eq 0) { Copy-Item
 The above command will have copied *'config.example.h'* into *'PucaOS-Arduino/'* as *'config.h'*.
 This file will be ignored by git so you can safely fill in your details and push commits without sharing your WiFi password! **The program will not run if the values in the new *'config.h'* are not filled in accurately.**
 
+*To connect to your MQTT broker you will need to find their TLS CA certificate and include it in your config.h file. The example file contains the CA cert for HiveMQ Cloud, if you are using a different broker you will need to change the cert.*
+
 To compile and upload the program onto your Arduino Nano ESP32:
 
 1. Ensure all files are in the same directory as *'PucaOS-Arduino.ino'*
 2. Open Arduino IDE
-3. Click 'File -> Open...'
+3. Click *'File -> Open...'*
 4. Select *'Puca-OSArduino.ino'*
 5. Ensure Arduino Nano ESP32 is connected to the computer and that the appropriate board and port are selected in 'tools'
-6. Click 'Upload Sketch'
-7. On first start-up, open serial monitor in Arduino IDE where you will be prompted to enter your MQTT password.
+6. Go to *'Tools -> Pin Numbering'* and ensure it is set to *'GPIO'*
+7. Click *'Upload Sketch'*
 
 
 ### Android
