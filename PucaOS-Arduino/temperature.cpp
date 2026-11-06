@@ -15,7 +15,7 @@ void init_temp()
     sensors.begin();
 }
 
-uint16_t sensor_temp()
+bool sensor_temp(int16_t *temp_buffer)
 {
     sensors.requestTemperatures();
 
@@ -23,8 +23,10 @@ uint16_t sensor_temp()
     if (temperature == -127.00)
     {
         printSerial("Error: Cannot get temperature data.");
-        return 0;
+        return false;
     }
 
-    return (uint16_t)(temperature * 100);
+    *temp_buffer = (int16_t)(temperature * 100);
+
+    return true;
 }

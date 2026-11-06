@@ -11,11 +11,13 @@
 ControlMode control_mode;
 
 Schedule *current_schedule;
-uint16_t current_temp;
+int16_t current_temp;
 uint16_t current_time;
 bool lamp_state = false;
 
 bool isError = false;
+
+char temp_string[8];
 
 static struct mg_mgr *mgr = NULL;
 
@@ -83,7 +85,14 @@ void update_logic_time()
 
 void update_logic_temp()
 {
-  uint16_t temp = sensor_temp();
+  int16_t temp = NULL;
+
+  if(!sensor_temp(&temp))
+  {
+    current_temp = temp;
+    return;
+  }
+
   if (temp == 0)
   {
     isError = true;
@@ -128,21 +137,26 @@ static void apply_logic()
   Timeframe current_t = current_schedule->timeframes[tf_index];
 
   // If we're well above temp or schedule says turn off, and the lamp is already on
-  if ((current_t.temperature + 200 < current_temp || !current_t.lamp_state) && lamp_state) // 2 degree range
+  if (((int16_t)(current_t.temperature + 200) < current_temp || !current_t.lamp_state) && lamp_state) // 2 degree range
   {
     set_plug(mgr, PLUG_IP, false); // Turn off
     printSerial("Turning off lamp.");
   }
   // If the lamp's off, temps below target, and lamp should be on
-  else if (!lamp_state && current_t.temperature - 300 > current_temp && current_t.lamp_state) // 3 degree range
+  else if (!lamp_state && (int16_t)(current_t.temperature - 300) > current_temp && current_t.lamp_state) // 3 degree range
   {
     set_plug(mgr, PLUG_IP, true); // Turn on
     printSerial("Turning on lamp.");
   }
 
-  printSerial("Target Temp: %f | Current Temp: %f | Lamp Status: %s",
+  if(current_temp != NULL)
+  {
+    snprintf(temp_string, sizeof(temp_string), "%f", (float)current_temp / 100.0f);
+  }
+
+  printSerial("Target Temp: %f | Current Temp: %s | Lamp Status: %s",
               (float)current_schedule->timeframes[tf_index].temperature / 100.0f,
-              (float)current_temp / 100.0f,
+              current_temp == NULL ? "Error" : temp_string,
               lamp_state ? "On" : "Off");
 }
 
