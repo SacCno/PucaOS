@@ -15,9 +15,7 @@ int16_t current_temp;
 uint16_t current_time;
 bool lamp_state = false;
 
-bool isError = false;
-
-char temp_string[8];
+char temp_string[16];
 
 static struct mg_mgr *mgr = NULL;
 
@@ -85,39 +83,28 @@ void update_logic_time()
 
 void update_logic_temp()
 {
-  int16_t temp = NULL;
+  int16_t temp;
 
   if(!sensor_temp(&temp))
   {
-    current_temp = temp;
+    current_temp = -127;
     return;
-  }
-
-  if (temp == 0)
-  {
-    isError = true;
-    return;
-  }
-  else if (isError)
-  {
-    isError = false;
   }
 
   current_temp = temp;
-  if (!isError)
+
+  char temp_msg[8];
+  int ref = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
+                    (float)temp / 100.00f);
+
+  if (ref < 0)
   {
-    const char temp_msg[8];
-    int ref = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
-                       (float)temp / 100.00f);
-
-    if (ref < 0)
-    {
-      return;
-    }
-
-    mqtt_publish("/mc/temperature", temp_msg, false); // We publish the temperature to MQTT for the android app to read
+    return;
   }
+
+  mqtt_publish("/mc/temperature", temp_msg, false); // We publish the temperature to MQTT for the android app to read
 }
+
 
 void logic_update()
 {
@@ -126,9 +113,16 @@ void logic_update()
 
 static void apply_logic()
 {
+  if(current_temp == -127)
+  {
+    printSerial("Temperature Error: Skipping Logic Check");
+    updateDisplay(-127.00f); // -127.00f is read as an error in the display code
+    return;
+  }
+
   updateDisplay((float)(current_temp / 100.0f)); // Temp is stored times 100 (30 = 3000) so it is divided by 100 when needs displaying
 
-  if (control_mode != CONTROL_MODE_AUTO || isError) // When there is an error or the Arduino is in manual mode, we skip applying logic
+  if (control_mode != CONTROL_MODE_AUTO) // When there is an error or the Arduino is in manual mode, we skip applying logic
   {
     return;
   }
@@ -149,14 +143,14 @@ static void apply_logic()
     printSerial("Turning on lamp.");
   }
 
-  if(current_temp != NULL)
+  if(current_temp != -127)
   {
     snprintf(temp_string, sizeof(temp_string), "%f", (float)current_temp / 100.0f);
   }
 
   printSerial("Target Temp: %f | Current Temp: %s | Lamp Status: %s",
               (float)current_schedule->timeframes[tf_index].temperature / 100.0f,
-              current_temp == NULL ? "Error" : temp_string,
+              current_temp == -127 ? "Error" : temp_string,
               lamp_state ? "On" : "Off");
 }
 

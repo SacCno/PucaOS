@@ -16,7 +16,7 @@ void init_temp(void);
    *
    * @param temp_buffer The address of the int16_t variable to store the retrieved temperature.
    *
-   * @note The temperature is checked for errors within the function, setting temp_buffer to NULL if an error is encountered.
+   * @note The temperature is checked for errors within the function, setting temp_buffer to -127 if an error is encountered.
    * 
    * @note Successful temperatures are formatted in celcius multiplied by 100 (i.e. 24.3C is returned as 2430)
    * 

@@ -33,10 +33,33 @@ extern "C" bool platform_init(void)
     printSerial("Entered platform init");
 
     printSerial("Mounting LittleFS (may format on first boot)...");
-    if (!LittleFS.begin(true))
+    if (!LittleFS.begin(false)) // false means a failed boot doesn't reformat the whole device
     {
-        printSerial("LittleFS mount failed");
-        return false;
+        printSerial("LittleFS mount failed\nWould you like to (re)format the device? (Y/N)\nWARNING THIS MAY WIPE ALL DATA");
+        
+        const unsigned long start = millis();
+        int input = -1;
+        while(millis() - start < 30000UL && input < 0)
+        {
+            if(Serial.available > 0)
+            {
+                input = Serial.read();
+            }
+            delay(10);
+        }
+
+        if (input != 'y' && input != 'Y')
+        {
+            printSerial("Formatting declined or timed out");
+            return false;
+        }
+
+        printSerial("Formatting LittleFS...");
+        if(!LittleFS.begin(true))
+        {
+            printSerial("LittleFS still not mounting.");
+            return false;
+        }
     }
 
     printSerial("LittleFS mounted");

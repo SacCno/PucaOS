@@ -23,6 +23,7 @@ bool sensor_temp(int16_t *temp_buffer)
     if (temperature == -127.00)
     {
         printSerial("Error: Cannot get temperature data.");
+        *temp_buffer = -127;
         return false;
     }
 
