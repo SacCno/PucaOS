@@ -3,6 +3,19 @@
 #include "platform.h"
 #include <time.h>
 
+bool is_double_integer(double input)
+{
+  int x = input;
+  double y = input - x;
+
+  if(y > 0)
+  {
+    return false;
+  }
+
+  return true;
+}
+
 uint16_t current_minute_of_day(void)
 {
   time_t now = time(NULL);
@@ -87,6 +100,8 @@ bool json_to_schedule(Schedule *s, struct mg_mqtt_message *msg)
       return false;
     }
 
+    if(!is_double_integer(temperature) || temperature < 0) {return false;}
+
     n = snprintf(
         path,
         sizeof(path),
@@ -101,6 +116,8 @@ bool json_to_schedule(Schedule *s, struct mg_mqtt_message *msg)
       return false;
     }
 
+    if(!is_double_integer(minute) || minute < 0 || minute > 1440) {return false;}
+
     n = snprintf(
         path,
         sizeof(path),
@@ -114,6 +131,8 @@ bool json_to_schedule(Schedule *s, struct mg_mqtt_message *msg)
     {
       return false;
     }
+
+    if(!is_double_integer(lamp_state) || lamp_state < 0 || lamp_state > 2) {return false;}
 
     tfs[(int)i].temperature = (uint16_t)temperature;
     tfs[(int)i].minute_of_day = (uint16_t)minute;

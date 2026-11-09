@@ -220,8 +220,6 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
     Schedule new;
     memset(&new, 0, sizeof(new));
 
-    printSerial("1");
-
     if (json_to_schedule(&new, message))
     {
       if (new.count == 0)
@@ -235,8 +233,6 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
       mqtt_publish("/mc/schedule/update", "valid", false);
       return true;
     }
-
-    printSerial("2");
 
     mqtt_publish("/mc/schedule/update", "invalid", false);
     return false;
