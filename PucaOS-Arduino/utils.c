@@ -229,6 +229,7 @@ bool schedule_to_json(Schedule s, char *output, size_t output_size)
     printSerial("JSON Append Error");
     return false;
   }
+  
   return true;
 }
 

@@ -71,13 +71,13 @@ The Arduino takes in measurements from DS18B20 temperature probes and compares t
 Clone the repository and setup *'config.h'*
 
 ```bash
-git clone https://github.com/SacCno/PucaOS && cd PucaOS/PucaOS-Arduino && cp config.example.h config.h
+git clone https://github.com/SacCno/PucaOS && cd PucaOS/PucaOS-Arduino && cp config.example.h config.h && cp ../PucaOS-Android/local.example.properties ../PucaOS-Android/local.properties
 ```
 
 On Powershell you may have to use this command instead.
 
 ```bash
-git clone https://github.com/SacCno/PucaOS; if ($LASTEXITCODE -eq 0) { Copy-Item PucaOS/PucaOS-Arduino/config.example.h PucaOS/PucaOS-Arduino/config.h }
+git clone https://github.com/SacCno/PucaOS; if ($LASTEXITCODE -eq 0) { Copy-Item PucaOS/PucaOS-Arduino/config.example.h PucaOS/PucaOS-Arduino/config.h; Copy-Item PucaOS/PucaOS-Android/local.example.properties PucaOS/PucaOS-Android/local.properties }
 ```
 
 ### Arduino
@@ -92,7 +92,7 @@ To compile and upload the program onto your Arduino Nano ESP32:
 1. Ensure all files are in the same directory as *'PucaOS-Arduino.ino'*
 2. Open Arduino IDE
 3. Click *'File -> Open...'*
-4. Select *'Puca-OSArduino.ino'*
+4. Select *'PucaOS-Arduino.ino'*
 5. Ensure Arduino Nano ESP32 is connected to the computer and that the appropriate board and port are selected in 'tools'
 6. Go to *'Tools -> Pin Numbering'* and ensure it is set to *'GPIO'*
 7. Click *'Upload Sketch'*
@@ -101,6 +101,8 @@ To compile and upload the program onto your Arduino Nano ESP32:
 ### Android
 
 In Android Studio, open the *PucaOS-Android/* folder as a project, and let the gradle build.
+
+Open *'local.properties,'* which should've been copied into PucaOS-Android with the above command, and fill in your values. This file will also be ignored by Git, so your information is safe.
 
 
 ## License

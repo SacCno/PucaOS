@@ -226,12 +226,14 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
       {
         schedule_init_default(&new);
       }
-      *schedule = new;
-      print_schedule(*schedule);
-      save_schedule(schedule);
-
-      mqtt_publish("/mc/schedule/update", "valid", false);
-      return true;
+      
+      print_schedule(new);
+      if(save_schedule(&new))
+      {
+        *schedule = new;
+        mqtt_publish("/mc/schedule/update", "valid", false);
+        return true;
+      }
     }
 
     mqtt_publish("/mc/schedule/update", "invalid", false);
@@ -240,7 +242,10 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
   else if (strcmp(t, "/ph/schedule/check") == 0)
   {
     char message[1024];
-    schedule_to_json(*schedule, message, sizeof(message));
+    if(!schedule_to_json(*schedule, message, sizeof(message)))
+    {
+      return false;
+    }
 
     mqtt_publish("/mc/schedule/check", message, false);
 
@@ -273,8 +278,6 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
       mqtt_publish("/mc/plug/status", "off", false);
       return true;
     }
-
-    printSerial("Invalid plug command");
   }
   else if (strcmp(t, "/ph/command/mode") == 0)
   {

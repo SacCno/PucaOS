@@ -14,9 +14,9 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 object MQTTHelper {
-    private const val BROKER_URL = "d992db3a97704af2b6a05bc13d30c31e.s1.eu.hivemq.cloud"
-    private const val USERNAME = "Phone-R"
-    private const val PASSWORD = "M@u4wdZBsKuC3H5"
+    private const val BROKER_URL = BuildConfig.MQTT_URL
+    private const val USERNAME = BuildConfig.MQTT_USERNAME
+    private const val PASSWORD = BuildConfig.MQTT_PASSWORD
 
     private val connectMutex = Mutex()
 
