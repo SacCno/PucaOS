@@ -1,4 +1,5 @@
-config.h
+PucaOS-Arduino/config.h
+PucaOS-Arduino/password.txt
 PucaOS-Android/.idea/workspace.xml
 PucaOS-Android/.gradle/
 PucaOS-Android/build/

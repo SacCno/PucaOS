@@ -7,15 +7,17 @@
 #include "display.h"
 #include "server.h"
 #include "settings.h"
+#include "heartbeat.h"
 
 ControlMode control_mode;
 
 Schedule *current_schedule;
-uint16_t current_temp;
+int16_t current_temp;
 uint16_t current_time;
 bool lamp_state = false;
 
-bool isError = false;
+TempStatus current_temp_status = TEMP_PENDING;
+char temp_string[16];
 
 static struct mg_mgr *mgr = NULL;
 
@@ -83,35 +85,37 @@ void update_logic_time()
 
 void update_logic_temp()
 {
-  uint16_t temp = sensor_temp();
-  if (temp == 0)
+  current_temp_status = sensor_temp(&current_temp);
+
+  if(current_temp_status == TEMP_ERROR || current_temp_status == TEMP_PENDING) 
   {
-    isError = true;
+    updateDisplay(DISPLAY_ERROR);
     return;
   }
-  else if (isError)
+
+  char temp_msg[8];
+  int n = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
+                    (float)current_temp / 100.00f);
+
+  if (n < 0) //Checks for errors in formatting temperature message
   {
-    isError = false;
+    return;
   }
 
-  current_temp = temp;
-  if (!isError)
-  {
-    const char temp_msg[8];
-    int ref = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
-                       (float)temp / 100.00f);
-
-    if (ref < 0)
-    {
-      return;
-    }
-
-    mqtt_publish("/mc/temperature", temp_msg, false); // We publish the temperature to MQTT for the android app to read
-  }
+  mqtt_publish("/mc/temperature", temp_msg, false); // We publish the temperature to MQTT for the android app to read
 }
+
 
 void logic_update()
 {
+  if(current_temp_status == TEMP_ERROR || current_temp_status == TEMP_PENDING)
+  {
+    printSerial("Temperature Error: Skipping Logic Check");
+    return;
+  }
+
+  emit_heartbeat(mgr);
+
   get_plug_state(mgr);
 }
 
@@ -119,7 +123,7 @@ static void apply_logic()
 {
   updateDisplay((float)(current_temp / 100.0f)); // Temp is stored times 100 (30 = 3000) so it is divided by 100 when needs displaying
 
-  if (control_mode != CONTROL_MODE_AUTO || isError) // When there is an error or the Arduino is in manual mode, we skip applying logic
+  if (control_mode != CONTROL_MODE_AUTO) // When there is an error or the Arduino is in manual mode, we skip applying logic
   {
     return;
   }
@@ -128,21 +132,26 @@ static void apply_logic()
   Timeframe current_t = current_schedule->timeframes[tf_index];
 
   // If we're well above temp or schedule says turn off, and the lamp is already on
-  if ((current_t.temperature + 200 < current_temp || !current_t.lamp_state) && lamp_state) // 2 degree range
+  if (((int16_t)(current_t.temperature + 200) < current_temp || !current_t.lamp_state) && lamp_state) // 2 degree range
   {
     set_plug(mgr, PLUG_IP, false); // Turn off
     printSerial("Turning off lamp.");
   }
   // If the lamp's off, temps below target, and lamp should be on
-  else if (!lamp_state && current_t.temperature - 300 > current_temp && current_t.lamp_state) // 3 degree range
+  else if (!lamp_state && (int16_t)(current_t.temperature - 300) > current_temp && current_t.lamp_state) // 3 degree range
   {
     set_plug(mgr, PLUG_IP, true); // Turn on
     printSerial("Turning on lamp.");
   }
 
-  printSerial("Target Temp: %f | Current Temp: %f | Lamp Status: %s",
+  if(current_temp != -127)
+  {
+    snprintf(temp_string, sizeof(temp_string), "%f", (float)current_temp / 100.0f);
+  }
+
+  printSerial("Target Temp: %f | Current Temp: %s | Lamp Status: %s",
               (float)current_schedule->timeframes[tf_index].temperature / 100.0f,
-              (float)current_temp / 100.0f,
+              current_temp == -127 ? "Error" : temp_string,
               lamp_state ? "On" : "Off");
 }
 

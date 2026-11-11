@@ -6,6 +6,8 @@ extern "C"
 {
 #endif
 
+#define DISPLAY_ERROR -32768
+
   /**
    * Initialise the display module.
    */

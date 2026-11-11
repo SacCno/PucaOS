@@ -5,6 +5,7 @@
 #include "schedule.h"
 #include "mongoose.h"
 
+
 typedef enum
 {
   CONTROL_MODE_AUTO,

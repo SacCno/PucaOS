@@ -9,8 +9,40 @@ bool storage_write(const char *path,
   {
     return false;
   }
+  
+  
+  // First write to temp file
+  
+  File file = LittleFS.open("/tempschedule.bin", "w");
+  if (!file)
+  {
+    return false;
+  }
 
-  File file = LittleFS.open(path, "w"); // Create or truncate the file
+  file.write(
+      static_cast<const uint8_t *>(data), size);
+
+  file.flush();
+  file.close();
+
+
+  //Check temp file validity
+
+  Schedule tempschedule = {0};
+
+  if(!storage_read("/tempschedule.bin", &tempschedule, sizeof(tempschedule)))
+  {
+    return false;
+  }
+
+  if(!validate_schedule(&tempschedule))
+  {
+    return false;
+  }
+  
+  // Write to desired path after confirming temp file
+  
+  file = LittleFS.open(path, "w"); 
   if (!file)
   {
     return false;

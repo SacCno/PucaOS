@@ -9,9 +9,16 @@ extern "C"
 {
 #endif
 
+  /**
+   * Initiates the hardware, including WiFi and time sync.
+   */
   bool platform_init(void);
+  /**
+   * Prints out to the hardware's serial output (if connected).
+   *
+   * @param fmt the args to print.
+   */
   void printSerial(const char *fmt, ...);
-  bool password_reader(const char *path, char *output, size_t output_size);
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,20 @@
 #define PLUG_H
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "mongoose.h"
+#include "config.h"
+#include "logic.h"
+#include "platform.h"
+
+struct plug_request
+{
+  char host[64];
+  char path[128];
+  bool query_state;
+};
 
 typedef void (*plug_state_callback)(
     bool is_on,

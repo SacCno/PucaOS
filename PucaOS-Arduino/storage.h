@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "schedule.h"
+
 #ifdef __cplusplus
 extern "C"
 {

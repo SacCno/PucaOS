@@ -27,69 +27,42 @@ extern "C" void printSerial(const char *fmt, ...)
     Serial.println(buffer);
 }
 
-static bool provisional_mqtt_password()
-{
-    if (LittleFS.exists("/mqttpassword.txt"))
-    {
-        printSerial("MQTT password file found");
-        return true;
-    }
-
-    printSerial("Enter MQTT password, then press enter...");
-
-    unsigned long last_prompt = millis();
-    while (!Serial.available())
-    {
-        if (Serial && millis() - last_prompt >= 5000UL)
-        {
-            printSerial("Waiting for MQTT password; send it with a newline.");
-            last_prompt = millis();
-        }
-        delay(50);
-    }
-
-    String password = Serial.readStringUntil('\n');
-
-    if (password.endsWith("\r"))
-    {
-        password.remove(password.length() - 1);
-    }
-
-    if (password.length() == 0 || password.length() >= 32)
-    {
-        printSerial("Invalid password length; must be 1-31 characters");
-        return false;
-    }
-
-    File file = LittleFS.open("/mqttpassword.txt", "w");
-
-    if (!file)
-    {
-        printSerial("Could not create password file");
-        return false;
-    }
-
-    file.print(password);
-    file.close();
-
-    printSerial("MQTT password saved");
-    return true;
-}
 
 extern "C" bool platform_init(void)
 {
     printSerial("Entered platform init");
 
     printSerial("Mounting LittleFS (may format on first boot)...");
-    if (!LittleFS.begin(true))
+    if (!LittleFS.begin(false)) // false means a failed boot doesn't reformat the whole device
     {
-        printSerial("LittleFS mount failed");
-        return false;
+        printSerial("LittleFS mount failed\nWould you like to (re)format the device? (Y/N)\nWARNING THIS MAY WIPE ALL DATA");
+        
+        const unsigned long start = millis();
+        int input = -1;
+        while(millis() - start < 30000UL && input < 0)
+        {
+            if(Serial.available() > 0)
+            {
+                input = Serial.read();
+            }
+            delay(10);
+        }
+
+        if (input != 'y' && input != 'Y')
+        {
+            printSerial("Formatting declined or timed out");
+            return false;
+        }
+
+        printSerial("Formatting LittleFS...");
+        if(!LittleFS.begin(true))
+        {
+            printSerial("LittleFS still not mounting.");
+            return false;
+        }
     }
 
     printSerial("LittleFS mounted");
-
-    provisional_mqtt_password();
 
     File root = LittleFS.open("/");
 
@@ -103,6 +76,7 @@ extern "C" bool platform_init(void)
     }
     else
     {
+        //Loops through and lists all files saved to flash storage
         bool found_file = false;
         File file = root.openNextFile();
 
@@ -138,7 +112,7 @@ extern "C" bool platform_init(void)
         delay(250);
     }
 
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() != WL_CONNECTED) //If WiFi doesn't connect we list the found networks
     {
         printSerial("WiFi connection failed, status=%d", (int)WiFi.status());
 
@@ -157,41 +131,20 @@ extern "C" bool platform_init(void)
         return false;
     }
 
-    configTzTime("GMT0IST,M3.5.0/1,M10.5.0/2", "pool.ntp.org", "time.nist.gov");
+    // We start and sync the time on the board
+    configTzTime("GMT0IST,M3.5.0/1,M10.5.0/2", "pool.ntp.org", "time.nist.gov"); 
 
-    delay(500);
+    struct tm timeinfo = {};
+    if(!getLocalTime(&timeinfo, 15000)) {
+        printSerial("Time sync failed");
+        return false;
+    }
+
+    char timeText[32];
+    strftime(timeText, sizeof(timeText), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    printSerial("Time synchronised: %s", timeText);
 
     printSerial("Setup Complete");
 
     return true;
-}
-
-extern "C" bool password_reader(
-    const char *path,
-    char *output,
-    size_t output_size)
-{
-    if (path == nullptr || output == nullptr || output_size < 2)
-    {
-        return false;
-    }
-
-    File file = LittleFS.open(path, "r");
-
-    if (!file)
-    {
-        return false;
-    }
-
-    size_t length = file.readBytesUntil('\n', output, output_size - 1);
-    file.close();
-
-    output[length] = '\0';
-
-    if (length > 0 && output[length - 1] == '\r')
-    {
-        output[length - 1] = '\0';
-    }
-
-    return output[0] != '\0';
 }

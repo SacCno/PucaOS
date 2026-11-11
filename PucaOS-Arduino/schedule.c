@@ -19,7 +19,7 @@ uint32_t schedule_crc(Schedule *schedule)
 
 bool schedule_init(Schedule *schedule, uint16_t version, Timeframe timeframes[], uint16_t count)
 {
-  if (schedule == NULL || count > MAX_TIMEFRAMES || count == 0 || timeframes == NULL)
+  if (schedule == NULL || count > MAX_TIMEFRAMES || count < 0 || timeframes == NULL)
   {
     printSerial("Schedule Init Error.");
     return false;
@@ -31,8 +31,11 @@ bool schedule_init(Schedule *schedule, uint16_t version, Timeframe timeframes[],
   new.version = version;
   new.count = count;
 
-  memcpy(new.timeframes, timeframes,
-         count * sizeof new.timeframes[0]);
+  if(count > 0) // If count is zero, we skip setting timeframes, since there are none
+  {
+    memcpy(new.timeframes, timeframes,
+           count * sizeof new.timeframes[0]);
+  }
 
   new.crc = schedule_crc(&new);
 
