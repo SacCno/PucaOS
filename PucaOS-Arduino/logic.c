@@ -7,6 +7,7 @@
 #include "display.h"
 #include "server.h"
 #include "settings.h"
+#include "heartbeat.h"
 
 ControlMode control_mode;
 
@@ -15,6 +16,7 @@ int16_t current_temp;
 uint16_t current_time;
 bool lamp_state = false;
 
+TempStatus current_temp_status = TEMP_PENDING;
 char temp_string[16];
 
 static struct mg_mgr *mgr = NULL;
@@ -83,21 +85,19 @@ void update_logic_time()
 
 void update_logic_temp()
 {
-  int16_t temp;
+  current_temp_status = sensor_temp(&current_temp);
 
-  if(!sensor_temp(&temp))
+  if(current_temp_status == TEMP_ERROR || current_temp_status == TEMP_PENDING) 
   {
-    current_temp = -127;
+    updateDisplay(DISPLAY_ERROR);
     return;
   }
 
-  current_temp = temp;
-
   char temp_msg[8];
-  int ref = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
-                    (float)temp / 100.00f);
+  int n = snprintf(temp_msg, sizeof(temp_msg), "%.1f",
+                    (float)current_temp / 100.00f);
 
-  if (ref < 0)
+  if (n < 0) //Checks for errors in formatting temperature message
   {
     return;
   }
@@ -108,18 +108,19 @@ void update_logic_temp()
 
 void logic_update()
 {
+  if(current_temp_status == TEMP_ERROR || current_temp_status == TEMP_PENDING)
+  {
+    printSerial("Temperature Error: Skipping Logic Check");
+    return;
+  }
+
+  emit_heartbeat(mgr);
+
   get_plug_state(mgr);
 }
 
 static void apply_logic()
 {
-  if(current_temp == -127)
-  {
-    printSerial("Temperature Error: Skipping Logic Check");
-    updateDisplay(-127.00f); // -127.00f is read as an error in the display code
-    return;
-  }
-
   updateDisplay((float)(current_temp / 100.0f)); // Temp is stored times 100 (30 = 3000) so it is divided by 100 when needs displaying
 
   if (control_mode != CONTROL_MODE_AUTO) // When there is an error or the Arduino is in manual mode, we skip applying logic

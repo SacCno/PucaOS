@@ -19,7 +19,7 @@ bool storage_write(const char *path,
     return false;
   }
 
-  size_t written = file.write(
+  file.write(
       static_cast<const uint8_t *>(data), size);
 
   file.flush();
@@ -28,7 +28,7 @@ bool storage_write(const char *path,
 
   //Check temp file validity
 
-  Schedule tempschedule = {0}
+  Schedule tempschedule = {0};
 
   if(!storage_read("/tempschedule.bin", &tempschedule, sizeof(tempschedule)))
   {
@@ -42,7 +42,7 @@ bool storage_write(const char *path,
   
   // Write to desired path after confirming temp file
   
-  File file = LittleFS.open(path, "w"); 
+  file = LittleFS.open(path, "w"); 
   if (!file)
   {
     return false;

@@ -41,7 +41,7 @@ extern "C" bool platform_init(void)
         int input = -1;
         while(millis() - start < 30000UL && input < 0)
         {
-            if(Serial.available > 0)
+            if(Serial.available() > 0)
             {
                 input = Serial.read();
             }

@@ -70,7 +70,7 @@ void updateDisplay(float temp)
 
   display.println(headerText);
 
-  if (temp != -127.00) // An erroneous reading will read -127 degrees
+  if (temp != DISPLAY_ERROR) // An erroneous reading will read -127 degrees
   {
     display.setTextSize(4);
 

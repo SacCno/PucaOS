@@ -7,6 +7,12 @@
 extern "C" {
 #endif
 
+typedef enum {
+  TEMP_PENDING,
+  TEMP_READY,
+  TEMP_ERROR
+} TempStatus;
+
   /**
    * Begins the sensor object.
    */
@@ -22,7 +28,7 @@ void init_temp(void);
    * 
    * @return a bool stating the success or failure to retrieve the current temperature.
    */
-bool sensor_temp(int16_t *temp_buffer);
+TempStatus sensor_temp(int16_t *temp_buffer);
 
 #ifdef __cplusplus
 }

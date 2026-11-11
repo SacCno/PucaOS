@@ -22,12 +22,21 @@ typedef struct Schedule
   uint32_t crc;
 } Schedule;
 
-bool schedule_init(Schedule *schedule, uint16_t version, Timeframe timeframes[], uint16_t count);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+bool schedule_init(Schedule *schedule, uint16_t version,
+                   Timeframe timeframes[], uint16_t count);
 bool schedule_init_default(Schedule *schedule);
 bool file_start_up(Schedule *schedule);
 bool save_schedule(Schedule *schedule);
 uint16_t get_temperature_from_time(const Schedule *sch, uint16_t current_minute);
 uint16_t get_lamp_state(const Schedule *sch, uint16_t current_minute);
 bool validate_schedule(Schedule *s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
