@@ -14,6 +14,16 @@ static bool save_settings()
   return storage_write(SETTINGS_PATH, &settings, sizeof(settings));
 }
 
+bool verify_settings(struct settings_type * s)
+{
+  if(s->mode == CONTROL_MODE_AUTO || s->mode == CONTROL_MODE_MANUAL)
+  {
+    return true;
+  }
+
+  return false;
+}
+
 bool update_settings_mode(ControlMode cm)
 {
   if (cm != CONTROL_MODE_AUTO && cm != CONTROL_MODE_MANUAL)

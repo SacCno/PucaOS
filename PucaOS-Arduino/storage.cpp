@@ -1,5 +1,6 @@
 #include <LittleFS.h>
 #include "storage.h"
+#include "settings.h"
 
 bool storage_write(const char *path,
                    const void *data,
@@ -13,31 +14,38 @@ bool storage_write(const char *path,
   
   // First write to temp file
   
-  File file = LittleFS.open("/tempschedule.bin", "w");
+  File file = LittleFS.open("/temp.bin", "w");
   if (!file)
   {
     return false;
   }
 
-  file.write(
-      static_cast<const uint8_t *>(data), size);
+  file.write(static_cast<const uint8_t *>(data), size);
 
   file.flush();
   file.close();
 
 
-  //Check temp file validity
+  //Check temp file validity for schedule and settings files
 
-  Schedule tempschedule = {0};
-
-  if(!storage_read("/tempschedule.bin", &tempschedule, sizeof(tempschedule)))
+  switch (size)
   {
-    return false;
-  }
-
-  if(!validate_schedule(&tempschedule))
-  {
-    return false;
+  case sizeof(Schedule): //Schedule file
+    {
+      Schedule tempschedule = {0};
+      if(!storage_read("/temp.bin", &tempschedule, sizeof(tempschedule))) return false;
+      if(!validate_schedule(&tempschedule)) return false;
+      break;
+    }
+  case sizeof(settings_type): //Settings file
+    {
+      struct settings_type tempsettings = {CONTROL_MODE_AUTO};
+      if(!storage_read("/temp.bin", &tempsettings, sizeof(tempsettings))) return false;
+      if(!verify_settings(&tempsettings)) return false;
+      break;
+    }
+  default:
+    break;
   }
   
   // Write to desired path after confirming temp file
@@ -48,8 +56,7 @@ bool storage_write(const char *path,
     return false;
   }
 
-  size_t written = file.write(
-      static_cast<const uint8_t *>(data), size);
+  size_t written = file.write(static_cast<const uint8_t *>(data), size);
 
   file.flush();
   file.close();
@@ -65,10 +72,7 @@ bool storage_read(const char *path, void *data, size_t size)
   }
 
   File file = LittleFS.open(path, "r");
-  if (!file)
-  {
-    return false;
-  }
+  if (!file) return false;
 
   if (file.size() != size)
   {

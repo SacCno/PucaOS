@@ -303,6 +303,8 @@ bool handle_mqtt_msg(struct mg_mqtt_message *message)
         mqtt_publish("/mc/command/mode", "manual", false);
         break;
       }
+
+      return true;
     }
   }
 
