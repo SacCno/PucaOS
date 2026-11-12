@@ -1,0 +1,23 @@
+Timer1 {"Enable":1,"Mode":0,"Time":"07:00","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":1}
+Timer2 {"Enable":1,"Mode":0,"Time":"12:00","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":0}
+Timer3 {"Enable":1,"Mode":0,"Time":"14:00","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":1}
+Timer4 {"Enable":1,"Mode":0,"Time":"19:00","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":0}
+Timer5 {"Enable":1,"Mode":0,"Time":"21:00","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":1}
+Timer6 {"Enable":1,"Mode":0,"Time":"22:30","Window":0,"Days":"SMTWTFS","Repeat":1,"Output":1,"Action":0}
+
+
+
+
+Mem1 0
+
+Rule1 ON Rules#Timer=1 DO Mem1 1 ENDON ON Rules#Timer=1 DO Timers 1 ENDON ON Rules#Timer=1 DO Event BackupSchedule ENDON
+
+Rule1 1
+
+Rule2 ON Time#Initialized DO IF(Mem1==1) Timers 1 ELSE Timers 0 ENDIF ENDON ON Time#Initialized DO IF(Mem1==1) Event BackupSchedule ENDIF ENDON ON Time#Initialized DO IF (Mem1==0) RuleTimer1 180 ENDIF ENDON ON Event#Heartbeat DO RuleTimer1 90 ENDON ON Event#Heartbeat DO IF(Mem1==1) Timers 0 ENDIF ENDON ON Event#Heartbeat DO IF(Mem1==1) Mem1 0 ENDIF ENDON
+
+Rule2 1
+
+Rule3 ON Event#BackupSchedule DO Power1 0 ENDON ON Event#BackupSchedule DO IF ((%time%>=420) AND (%time%<720)) Power1 1 ENDIF ENDON ON Event#BackupSchedule DO IF ((%time%>=840) AND (%time%<1140)) Power1 1 ENDIF ENDON ON Event#BackupSchedule DO IF ((%time%>=1260) AND (%time%<1350)) Power1 1 ENDIF ENDON
+
+Rule3 1
