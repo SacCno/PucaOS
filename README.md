@@ -43,7 +43,7 @@ The Arduino takes in measurements from DS18B20 temperature probes and compares t
 
 ## Dependencies
 
-* Mongoose
+* Mongoose - **Version 7.23 used in this project. See [LICENSE](#license) section**
 * DallasTemperature
 * OneWire
 * Wire
@@ -107,4 +107,4 @@ Open *'local.properties,'* which should've been copied into PucaOS-Android with 
 
 ## License
 
-MIT License - See [LICENSE](LICENSE).
+The root [MIT License](LICENSE) applies to PucaOS code authored for this project. The bundled Mongoose 7.23 files are separately licensed under GPL-2.0-only or a commercial license. See the Mongoose file headers and [Mongoose licensing](https://mongoose.ws/licensing/).

@@ -1,0 +1,3 @@
+[submodule "PucaOS-Arduino/tests/vendor/Unity"]
+	path = PucaOS-Arduino/tests/vendor/Unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
